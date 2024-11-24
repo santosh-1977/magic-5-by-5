@@ -1,0 +1,90 @@
+// script.js
+
+// Predefined numbers for the magic square
+const predefinedNumbers = [
+  [11, null, null, null, 17],
+  [null, 12, null, null, null],
+  [25, null, 13, null, null],
+  [null, null, null, 14, 8],
+  [9, null, null, null, 15],
+];
+
+// Render the 5x5 grid
+function createMagicSquare() {
+  const magicSquare = document.getElementById("magicSquare");
+  predefinedNumbers.forEach((row, rowIndex) => {
+    row.forEach((value, colIndex) => {
+      const cell = document.createElement("div");
+      cell.className = "square-cell";
+      if (value !== null) {
+        cell.textContent = value;
+      } else {
+        const input = document.createElement("input");
+        input.type = "number";
+        input.min = 1;
+        input.max = 25;
+        input.dataset.row = rowIndex;
+        input.dataset.col = colIndex;
+        cell.appendChild(input);
+      }
+      magicSquare.appendChild(cell);
+    });
+  });
+}
+
+// Check if the grid forms a magic square
+function checkMagicSquare() {
+  const magicSum = 65; // 5x5 magic square sum for rows, columns, and diagonals
+  const inputs = document.querySelectorAll(".square-cell input");
+  let userNumbers = predefinedNumbers.map((row) => [...row]);
+
+  inputs.forEach((input) => {
+    const row = input.dataset.row;
+    const col = input.dataset.col;
+    userNumbers[row][col] = parseInt(input.value, 10) || null;
+  });
+
+  // Validate rows, columns, and diagonals
+  const isMagic = validateMagicSquare(userNumbers, magicSum);
+
+  const result = document.getElementById("result");
+  if (isMagic) {
+    result.textContent = "Congratulations! You have completed the magic square!";
+    result.style.color = "green";
+  } else {
+    result.textContent = "Oops! The square doesn't form a magic square. Try again!";
+    result.style.color = "red";
+  }
+}
+
+// Validate if the grid forms a magic square
+function validateMagicSquare(square, magicSum) {
+  // Check rows
+  for (let row of square) {
+    if (row.reduce((sum, val) => sum + (val || 0), 0) !== magicSum) {
+      return false;
+    }
+  }
+
+  // Check columns
+  for (let col = 0; col < 5; col++) {
+    let colSum = 0;
+    for (let row = 0; row < 5; row++) {
+      colSum += square[row][col] || 0;
+    }
+    if (colSum !== magicSum) {
+      return false;
+    }
+  }
+
+  // Check diagonals
+  let diag1Sum = 0, diag2Sum = 0;
+  for (let i = 0; i < 5; i++) {
+    diag1Sum += square[i][i] || 0;
+    diag2Sum += square[i][4 - i] || 0;
+  }
+  return diag1Sum === magicSum && diag2Sum === magicSum;
+}
+
+// Initialize the magic square
+createMagicSquare();
